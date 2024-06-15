@@ -1,4 +1,9 @@
-import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientConfig,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 const queryErrorHandler = (error: unknown) => {
@@ -9,7 +14,7 @@ const queryErrorHandler = (error: unknown) => {
   return;
 };
 
-export const createQueryClient = new QueryClient({
+export const queryClientOptions: QueryClientConfig = {
   queryCache: new QueryCache({
     onError: (error, query) => {
       if (query.meta?.errorMessage) {
@@ -29,4 +34,6 @@ export const createQueryClient = new QueryClient({
       queryErrorHandler(error);
     },
   }),
-});
+};
+
+export const createQueryClient = new QueryClient(queryClientOptions);
