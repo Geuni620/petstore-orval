@@ -22,7 +22,7 @@
     "simple-import-sort",
     "@tanstack/query"
   ],
-  "ignorePatterns": ["node_modules/*"],
+  "ignorePatterns": ["node_modules/*", "tailwind.config.js"],
   "rules": {
     "react/display-name": "off",
 
