@@ -2,7 +2,7 @@ import {
   MutationCache,
   QueryCache,
   QueryClient,
-  QueryClientConfig,
+  type QueryClientConfig,
 } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
