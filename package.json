@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "eslint": "eslint ./ --ext .ts,.tsx,.js,.jsx --fix"
+    "eslint": "eslint ./ --ext .ts,.tsx,.js,.jsx --fix",
+    "gen": "orval"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
@@ -46,6 +47,7 @@
     "eslint-plugin-testing-library": "^6.2.2",
     "eslint-plugin-vitest": "^0.5.3",
     "msw": "^2.1.5",
+    "orval": "^7.5.0",
     "postcss": "^8.4.24",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
