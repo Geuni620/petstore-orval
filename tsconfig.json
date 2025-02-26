@@ -33,7 +33,7 @@
     "alwaysStrict": true,
     "downlevelIteration": true
   },
-  "include": ["src", "**/*.tsx"],
+  "include": ["src", "**/*.tsx", "orval.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }],
   "exclude": ["node_modules"]
 }
