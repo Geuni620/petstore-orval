@@ -8,6 +8,7 @@ export default {
     },
     input: {
       target: './petstore.yaml',
+
       filters: {
         tags: [/store/],
       },
