@@ -1,3 +1,5 @@
+// orval.config.ts
+import type { GeneratorVerbOptions } from '@orval/core';
 import { defineConfig } from 'orval';
 
 export default defineConfig({
@@ -7,6 +9,16 @@ export default defineConfig({
       target: './src/api/petstore.ts',
       schemas: './src/api/models',
       client: 'fetch',
+      override: {
+        // here! 🙋‍♂️
+        transformer: (verb: GeneratorVerbOptions): GeneratorVerbOptions => {
+          if (verb.response?.definition.errors === 'void') {
+            verb.response.definition.errors = 'null';
+          }
+
+          return verb;
+        },
+      },
     },
     input: {
       target: './petstore.yaml',
