@@ -1,4 +1,6 @@
-export default {
+import { defineConfig } from 'orval';
+
+export default defineConfig({
   petstore: {
     output: {
       mode: 'tags-split', // split
@@ -14,4 +16,4 @@ export default {
       },
     },
   },
-};
+});
