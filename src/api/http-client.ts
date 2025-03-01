@@ -146,9 +146,28 @@ export const httpClient = {
   },
 };
 
-export const customHttpClient = (
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export const customHttpClient = async <T>(
   url: string,
-  options: RequestInit & { method: keyof typeof httpClient },
-) => {
-  return httpClient[options.method]({ url, ...options });
+  options: RequestInit & { method: HttpMethod },
+): Promise<T> => {
+  const { method, body, ...restOptions } = options;
+  const lowerMethod = method.toLowerCase() as Lowercase<HttpMethod>;
+
+  const args =
+    body !== undefined
+      ? { url, body, options: restOptions }
+      : { url, options: restOptions };
+
+  return httpClient[lowerMethod](args).then(async (response) => {
+    const status = response.status;
+
+    const text = [204, 205, 304].includes(status)
+      ? null
+      : await response.text();
+
+    const data: T = text ? JSON.parse(text) : ({} as T);
+    return data;
+  });
 };

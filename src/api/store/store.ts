@@ -12,6 +12,7 @@ Some useful links:
 - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
  * OpenAPI spec version: 1.0.19
  */
+import { customHttpClient } from '.././http-client';
 import type { GetInventory200, Order } from '.././models';
 
 /**
@@ -31,19 +32,10 @@ export const getGetInventoryUrl = () => {
 export const getInventory = async (
   options?: RequestInit,
 ): Promise<getInventoryResponse> => {
-  const res = await fetch(getGetInventoryUrl(), {
+  return customHttpClient<getInventoryResponse>(getGetInventoryUrl(), {
     ...options,
     method: 'GET',
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getInventoryResponse['data'] = body ? JSON.parse(body) : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getInventoryResponse;
 };
 
 /**
@@ -64,21 +56,12 @@ export const placeOrder = async (
   order: Order,
   options?: RequestInit,
 ): Promise<placeOrderResponse> => {
-  const res = await fetch(getPlaceOrderUrl(), {
+  return customHttpClient<placeOrderResponse>(getPlaceOrderUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(order),
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: placeOrderResponse['data'] = body ? JSON.parse(body) : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as placeOrderResponse;
 };
 
 /**
@@ -99,19 +82,10 @@ export const getOrderById = async (
   orderId: number,
   options?: RequestInit,
 ): Promise<getOrderByIdResponse> => {
-  const res = await fetch(getGetOrderByIdUrl(orderId), {
+  return customHttpClient<getOrderByIdResponse>(getGetOrderByIdUrl(orderId), {
     ...options,
     method: 'GET',
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: getOrderByIdResponse['data'] = body ? JSON.parse(body) : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as getOrderByIdResponse;
 };
 
 /**
@@ -132,17 +106,8 @@ export const deleteOrder = async (
   orderId: number,
   options?: RequestInit,
 ): Promise<deleteOrderResponse> => {
-  const res = await fetch(getDeleteOrderUrl(orderId), {
+  return customHttpClient<deleteOrderResponse>(getDeleteOrderUrl(orderId), {
     ...options,
     method: 'DELETE',
   });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: deleteOrderResponse['data'] = body ? JSON.parse(body) : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as deleteOrderResponse;
 };
