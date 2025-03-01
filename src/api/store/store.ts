@@ -12,7 +12,7 @@ Some useful links:
 - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
  * OpenAPI spec version: 1.0.19
  */
-import { customHttpClient } from '.././http-client';
+import { customFetch } from '.././http-client';
 import type { GetInventory200, Order } from '.././models';
 
 /**
@@ -32,7 +32,7 @@ export const getGetInventoryUrl = () => {
 export const getInventory = async (
   options?: RequestInit,
 ): Promise<getInventoryResponse> => {
-  return customHttpClient<getInventoryResponse>(getGetInventoryUrl(), {
+  return customFetch<getInventoryResponse>(getGetInventoryUrl(), {
     ...options,
     method: 'GET',
   });
@@ -56,7 +56,7 @@ export const placeOrder = async (
   order: Order,
   options?: RequestInit,
 ): Promise<placeOrderResponse> => {
-  return customHttpClient<placeOrderResponse>(getPlaceOrderUrl(), {
+  return customFetch<placeOrderResponse>(getPlaceOrderUrl(), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -82,7 +82,7 @@ export const getOrderById = async (
   orderId: number,
   options?: RequestInit,
 ): Promise<getOrderByIdResponse> => {
-  return customHttpClient<getOrderByIdResponse>(getGetOrderByIdUrl(orderId), {
+  return customFetch<getOrderByIdResponse>(getGetOrderByIdUrl(orderId), {
     ...options,
     method: 'GET',
   });
@@ -106,7 +106,7 @@ export const deleteOrder = async (
   orderId: number,
   options?: RequestInit,
 ): Promise<deleteOrderResponse> => {
-  return customHttpClient<deleteOrderResponse>(getDeleteOrderUrl(orderId), {
+  return customFetch<deleteOrderResponse>(getDeleteOrderUrl(orderId), {
     ...options,
     method: 'DELETE',
   });

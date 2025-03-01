@@ -1,173 +1,58 @@
-import { createUrl } from './create-url';
+// NOTE: Supports cases where `content-type` is other than `json`
+const getBody = <T>(c: Response | Request): Promise<T> => {
+  const contentType = c.headers.get('content-type');
 
-type HttpClientOptions = RequestInit;
-
-interface GetRequest {
-  url: string;
-  options?: HttpClientOptions;
-}
-
-interface PostRequest<T = unknown> {
-  url: string;
-  body?: T;
-  options?: HttpClientOptions;
-}
-
-interface PutRequest<T = unknown> {
-  url: string;
-  body?: T;
-  options?: HttpClientOptions;
-}
-
-interface PatchRequest<T = unknown> {
-  url: string;
-  body?: T;
-  options?: HttpClientOptions;
-}
-
-interface DeleteRequest {
-  url: string;
-  options?: HttpClientOptions;
-}
-
-const checkResponse = async (response: Response): Promise<Response> => {
-  if (!response.ok) {
-    const errorText = await response.text();
-
-    throw new Error(
-      `네트워크 응답이 정상적이지 않습니다: ${response.status} ${response.statusText} - ${errorText}`,
-    );
+  if (contentType?.includes('application/json')) {
+    return c.json();
   }
-  return response;
+
+  if (contentType?.includes('application/pdf')) {
+    return c.blob() as Promise<T>;
+  }
+
+  return c.text() as Promise<T>;
 };
 
-export const httpClient = {
-  get: async ({ url, options }: GetRequest): Promise<Response> => {
-    const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
-    const headers = {
-      ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+// NOTE: Update just base url
+const getUrl = (contextUrl: string): string => {
+  const url = new URL(contextUrl);
+  const pathname = url.pathname;
+  const search = url.search;
+  const baseUrl =
+    process.env.NODE_ENV === 'production'
+      ? 'productionBaseUrl'
+      : 'http://localhost:3000';
 
-    const response = await fetch(resolvedUrl, {
-      ...options,
-      method: 'GET',
-      headers,
-    });
+  const requestUrl = new URL(`${baseUrl}${pathname}${search}`);
 
-    return await checkResponse(response);
-  },
-
-  post: async <T = unknown>({
-    url,
-    body,
-    options,
-  }: PostRequest<T>): Promise<Response> => {
-    const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const response = await fetch(resolvedUrl, {
-      ...options,
-      method: 'POST',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      headers,
-    });
-
-    return await checkResponse(response);
-  },
-
-  put: async <T = unknown>({
-    url,
-    body,
-    options,
-  }: PutRequest<T>): Promise<Response> => {
-    const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const response = await fetch(resolvedUrl, {
-      ...options,
-      method: 'PUT',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      headers,
-    });
-
-    return await checkResponse(response);
-  },
-
-  patch: async <T = unknown>({
-    url,
-    body,
-    options,
-  }: PatchRequest<T>): Promise<Response> => {
-    const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const response = await fetch(resolvedUrl, {
-      ...options,
-      method: 'PATCH',
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      headers,
-    });
-
-    return await checkResponse(response);
-  },
-
-  delete: async ({ url, options }: DeleteRequest): Promise<Response> => {
-    const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
-    const headers = {
-      ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const response = await fetch(resolvedUrl, {
-      ...options,
-      method: 'DELETE',
-      headers,
-    });
-
-    return await checkResponse(response);
-  },
+  return requestUrl.toString();
 };
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+const getHeaders = (headers?: HeadersInit): HeadersInit => {
+  const token = localStorage.getItem('token');
 
-export const customHttpClient = async <T>(
+  return {
+    ...headers,
+    Authorization: token ? `Bearer ${token}` : '',
+    'Content-Type': 'multipart/form-data',
+  };
+};
+
+export const customFetch = async <T>(
   url: string,
-  options: RequestInit & { method: HttpMethod },
+  options: RequestInit,
 ): Promise<T> => {
-  const { method, body, ...restOptions } = options;
-  const lowerMethod = method.toLowerCase() as Lowercase<HttpMethod>;
+  const requestUrl = getUrl(url);
+  const requestHeaders = getHeaders(options.headers);
 
-  const args =
-    body !== undefined
-      ? { url, body, options: restOptions }
-      : { url, options: restOptions };
+  const requestInit: RequestInit = {
+    ...options,
+    headers: requestHeaders,
+  };
 
-  return httpClient[lowerMethod](args).then(async (response) => {
-    const status = response.status;
+  const request = new Request(requestUrl, requestInit);
+  const response = await fetch(request);
+  const data = await getBody<T>(response);
 
-    const text = [204, 205, 304].includes(status)
-      ? null
-      : await response.text();
-
-    const data: T = text ? JSON.parse(text) : ({} as T);
-    return data;
-  });
+  return { status: response.status, data, headers: response.headers } as T;
 };

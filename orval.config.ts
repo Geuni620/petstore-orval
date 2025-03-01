@@ -21,7 +21,7 @@ export default defineConfig({
 
         mutator: {
           path: './src/api/http-client.ts',
-          name: 'customHttpClient',
+          name: 'customFetch',
         },
       },
     },
