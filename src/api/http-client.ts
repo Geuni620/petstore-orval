@@ -44,10 +44,9 @@ const checkResponse = async (response: Response): Promise<Response> => {
 export const httpClient = {
   get: async ({ url, options }: GetRequest): Promise<Response> => {
     const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
     const headers = {
       ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      api_key: 'special-key',
     };
 
     const response = await fetch(resolvedUrl, {
@@ -65,11 +64,10 @@ export const httpClient = {
     options,
   }: PostRequest<T>): Promise<Response> => {
     const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
     const headers = {
       'Content-Type': 'application/json',
       ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      api_key: 'special-key',
     };
 
     const response = await fetch(resolvedUrl, {
@@ -88,11 +86,10 @@ export const httpClient = {
     options,
   }: PutRequest<T>): Promise<Response> => {
     const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
     const headers = {
       'Content-Type': 'application/json',
       ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      api_key: 'special-key',
     };
 
     const response = await fetch(resolvedUrl, {
@@ -111,11 +108,10 @@ export const httpClient = {
     options,
   }: PatchRequest<T>): Promise<Response> => {
     const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
     const headers = {
       'Content-Type': 'application/json',
       ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      api_key: 'special-key',
     };
 
     const response = await fetch(resolvedUrl, {
@@ -130,10 +126,9 @@ export const httpClient = {
 
   delete: async ({ url, options }: DeleteRequest): Promise<Response> => {
     const resolvedUrl = createUrl(url);
-    const token = localStorage.getItem('AccessToken');
     const headers = {
       ...(options?.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      api_key: 'special-key',
     };
 
     const response = await fetch(resolvedUrl, {
@@ -155,19 +150,11 @@ export const customHttpClient = async <T>(
   const { method, body, ...restOptions } = options;
   const lowerMethod = method.toLowerCase() as Lowercase<HttpMethod>;
 
-  const args =
-    body !== undefined
-      ? { url, body, options: restOptions }
-      : { url, options: restOptions };
-
-  return httpClient[lowerMethod](args).then(async (response) => {
-    const status = response.status;
-
-    const text = [204, 205, 304].includes(status)
-      ? null
-      : await response.text();
-
-    const data: T = text ? JSON.parse(text) : ({} as T);
-    return data;
+  const response = await httpClient[lowerMethod]({
+    url,
+    body,
+    options: restOptions,
   });
+
+  return response.json();
 };

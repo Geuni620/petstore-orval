@@ -5,6 +5,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   petstore: {
     output: {
+      mock: true,
       mode: 'tags-split', // split
       target: './src/api/petstore.ts',
       schemas: './src/api/models',
