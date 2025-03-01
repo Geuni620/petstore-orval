@@ -18,6 +18,11 @@ export default defineConfig({
 
           return verb;
         },
+
+        mutator: {
+          path: './src/api/http-client.ts',
+          name: 'customHttpClient',
+        },
       },
     },
     input: {
